@@ -23,14 +23,14 @@ public class UserController {
     }
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public String addUser(@RequestBody User user) {
+    public boolean addUser(@RequestBody User user) {
         RequestObject requestObject = new RequestObject();
         requestObject.setContent(user);
-        return userManager.addUser(requestObject);
+        return userManager.addUser(requestObject) != "-1";
     }
 
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @RequestMapping(value = "/signin", method = RequestMethod.POST)
     public String login(@RequestBody User user) throws Exception {
         RequestObject requestObject = new RequestObject();
         requestObject.setContent(user);
@@ -39,21 +39,21 @@ public class UserController {
 
 
     @GetMapping(value = "/logout")
-    public boolean logout(@RequestParam(value = "token") String token) throws Exception {
+    public boolean logout(@RequestHeader(value = "token") String token) throws Exception {
         System.out.println("got the message");
         return userManager.logout(token);
     }
 
     @GetMapping(value = "/{id}")
-    public User getUserProfile(@PathVariable String id, @RequestParam(value = "token") String token) throws Exception {
+    public User getUserProfile(@PathVariable String id, @RequestHeader(value = "token") String token) throws Exception {
 
-            RequestObject requestObject = new RequestObject();
-            requestObject.setRequesterId(id);
-            User user = new User();
-            user.setID(Long.parseLong(id));
-            requestObject.setContent(user);
-            requestObject.setToken(token);
-            return userManager.getUser(requestObject);
+        RequestObject requestObject = new RequestObject();
+        requestObject.setRequesterId(id);
+        User user = new User();
+        user.setID(Long.parseLong(id));
+        requestObject.setContent(user);
+        requestObject.setToken(token);
+        return userManager.getUser(requestObject);
 
     }
 }

@@ -24,14 +24,14 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public User addTask(@RequestBody Task task, @RequestParam(value = "token") String token) {
+    public User addTask(@RequestBody Task task, @RequestHeader(value = "token") String token) {
         RequestObject requestObject = new RequestObject();
         requestObject.setContent(task);
         return taskManager.addTask(requestObject);
     }
 
     @GetMapping(value = "/remove/{id}")
-    public User removeTask (@PathVariable String taskId, @RequestParam(value = "token") String token){
+    public User removeTask (@PathVariable String taskId, @RequestHeader(value = "token") String token){
         RequestObject requestObject = new RequestObject();
         requestObject.setToken(token);
         Task task = new Task();
@@ -41,7 +41,7 @@ public class TaskController {
     }
 
     @GetMapping(value = "/{id}")
-    public Task getTask(@PathVariable String taskId, @RequestParam(value = "token") String token) {
+    public Task getTask(@PathVariable String taskId, @RequestHeader(value = "token") String token) {
         RequestObject requestObject = new RequestObject();
         requestObject.setToken(token);
         Task task = new Task();

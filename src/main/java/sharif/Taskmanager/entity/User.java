@@ -1,6 +1,7 @@
 package sharif.Taskmanager.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -8,15 +9,14 @@ import java.util.List;
  */
 @Entity
 public class User extends BaseEntity {
-
+    @NotNull
     private String userName;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ID;
-    private String phoneNumber;
+    @NotNull
     private String hashedPassword;
-    private String email;
-
+    private  String name;
     @OneToMany
     private List<Task> tasks;
 
@@ -33,28 +33,22 @@ public class User extends BaseEntity {
     public void setID(Long ID) {
         this.ID = ID;
     }
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
     public String getHashedPassword() {
         return hashedPassword;
     }
-    public void setHashedPassword(String passwordHash) {
-        this.hashedPassword = passwordHash;
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
     }
     public List<Task> getTasks() {
         return tasks;
     }
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
     }
 }

@@ -25,14 +25,24 @@ public class UserManager {
 
     public String addUser(RequestObject requestObject) {
         User userToAdd = ((User) requestObject.getContent());
+        if (!validateUser(userToAdd)){
+            throw new HTTPException(400);
+        }
         return userRepository.save(userToAdd).getID().toString();
     }
 
+    private boolean validateUser (User user){
+        User dupUser = userRepository.findByUserName(user.getUserName());
+        if (dupUser != null)
+            return false;
+
+        return true;
+    }
     //ret value = token
     public String login(RequestObject requestObject) {
         User userToCheck = ((User) requestObject.getContent());
         User userByUserName = userRepository.findByUserName(userToCheck.getUserName());
-        if (userToCheck.getHashedPassword() == userByUserName.getHashedPassword()) {
+        if (userToCheck.getHashedPassword().equals(userByUserName.getHashedPassword())) {
             String token = UUID.randomUUID().toString().replace("-", "");
             tokens.put(token, userToCheck.getID());
             return token;

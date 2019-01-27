@@ -1,31 +1,25 @@
 package sharif.TaskManager.test;
 
-import org.junit.*;
-import org.junit.runner.*;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.test.autoconfigure.web.servlet.*;
-import org.springframework.boot.test.mock.mockito.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.http.MediaType.*;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import sharif.Taskmanager.TaskmanagerApplication;
-import sharif.Taskmanager.controller.UserController;
 import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.User;
 import sharif.Taskmanager.manager.UserManager;
 
-
-import javax.validation.constraints.Null;
-
-import static org.assertj.core.api.Assertions.*;
-
 import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=TaskmanagerApplication.class)
@@ -42,10 +36,8 @@ public class UserControllerTest {
     public void createUserTests()
         throws Exception {
             User mockedUser = new User();
-            mockedUser.setEmail("sobhan@gentoo.org");
             mockedUser.setHashedPassword("1234");
             mockedUser.setUserName(null);
-            mockedUser.setPhoneNumber(null);
             mockedUser.setID(null);
 
             RequestObject requestObject = new RequestObject();
@@ -62,7 +54,6 @@ public class UserControllerTest {
                             RequestObject req = (RequestObject) args[0];
                             User u = (User) req.getContent();
                             if (
-                                    u.getEmail().matches(emailPattern) &&
                                     u.getHashedPassword().length() == 128
                             )
                                 return "11";
