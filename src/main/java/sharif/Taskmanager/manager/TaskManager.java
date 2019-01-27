@@ -43,14 +43,32 @@ public class TaskManager {
         return taskToAdd;
     }
 
-    private boolean validateTask(Task task) {
-        return true;
-        //todo implement
+    public Task editTask(RequestObject requestObject) {
+        Task task = (Task) requestObject.getContent();
+        Long userId = userManager.getUserIdOfToken(requestObject.getToken());
+        checkTokenAccessToUser(userId, requestObject.getToken());
+        if (!validateTask(task)) {
+            throw new HTTPException(400);
+        }
+        User taskOwner = userManager.getUser(userId);
+        task.setUserId(taskOwner.getID());
+        task = taskRepository.save(task);
+        int index = 0;
+        for (Task task1 : taskOwner.getTasks()) {
+            if (task1.getId() == task.getId()){
+                index= taskOwner.getTasks().indexOf(task1);
+            }
+        }
+        taskOwner.getTasks().remove(index);
+        taskOwner.getTasks().add(task);
+        userManager.updateUserTasks(taskOwner);
+        return task;
     }
 
 
-    public Task editTask(RequestObject requestObject) {
-        return null;
+    private boolean validateTask(Task task) {
+        return true;
+        //todo implement
     }
 
 

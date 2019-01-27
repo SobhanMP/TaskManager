@@ -19,8 +19,23 @@ public class Task extends BaseEntity {
     private Long parentTaskId;
     private Long userId;
     private String AssignerUserId;
+    private String deadline;
+    private String description;
 
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDeadline() {
+        return deadline;
+    }
+    public void setDeadline(String deadline) {
+        this.deadline = deadline;
+    }
     public Long getParentTaskId() {
         return parentTaskId;
     }
