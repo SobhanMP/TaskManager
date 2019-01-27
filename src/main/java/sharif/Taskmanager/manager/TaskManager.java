@@ -8,6 +8,7 @@ import sharif.Taskmanager.entity.Task;
 import sharif.Taskmanager.entity.User;
 
 import javax.xml.ws.http.HTTPException;
+import java.util.ArrayList;
 
 /**
  * Created by amirmhp on 12/11/2018.
@@ -24,18 +25,22 @@ public class TaskManager {
 
     }
 
-    public User addTask(RequestObject requestObject) {
+    public Task addTask(RequestObject requestObject) {
         Task taskToAdd = (Task) requestObject.getContent();
-        Long userId = taskToAdd.getUserId();
+        Long userId = userManager.getUserIdOfToken(requestObject.getToken());
         checkTokenAccessToUser(userId, requestObject.getToken());
         if (!validateTask(taskToAdd)) {
             throw new HTTPException(400);
         }
-        taskToAdd = taskRepository.save(taskToAdd);
         User taskOwner = userManager.getUser(userId);
+        taskToAdd.setUserId(taskOwner.getID());
+        if ((taskToAdd.getParentTaskId() == null) && (taskOwner.getTasks().size() > 0)) {
+            throw new HTTPException(400);
+        }
+        taskToAdd = taskRepository.save(taskToAdd);
         taskOwner.getTasks().add(taskToAdd);
-        userManager.saveUser(taskOwner);
-        return taskOwner;
+        userManager.updateUserTasks(taskOwner);
+        return taskToAdd;
     }
 
     private boolean validateTask(Task task) {
@@ -44,21 +49,36 @@ public class TaskManager {
     }
 
 
-    public User removeTask(RequestObject requestObject) {
+    public Task editTask(RequestObject requestObject) {
+        return null;
+    }
+
+
+    public void removeTask(RequestObject requestObject) {
         Task taskToRemove = (Task) requestObject.getContent();
         Long userId = taskToRemove.getUserId();
         checkTokenAccessToUser(userId, requestObject.getToken());
         User taskOwner = userManager.getUser(userId);
-        taskOwner = removeTaskFromUserTaskList(taskOwner, taskToRemove.getTaskId());
-        taskToRemove = taskRepository.findById(taskToRemove.getTaskId()).get();
-        taskRepository.delete(taskToRemove);
-        return taskOwner;
+        removeTask(taskToRemove.getId(), taskOwner);
+    }
+
+    private void removeTask(Long taskId, User user) {
+        Task task = taskRepository.findById(taskId).get();
+        ArrayList<Task> kids = new ArrayList<>(taskRepository.findByParentTaskId(task.getId()));
+        if (kids.size() != 0) {
+            for (Task kid : kids) {
+                removeTask(kid.getId(), user);
+            }
+        }
+        user = removeTaskFromUserTaskList(user, taskId);
+        taskRepository.delete(task);
+        userManager.updateUserTasks(user);
     }
 
     private User removeTaskFromUserTaskList(User user, Long taskId) {
         int taskToRemoveIndex = -1;
         for (Task task : user.getTasks()) {
-            if (task.getTaskId().equals(taskId)) {
+            if (task.getId().equals(taskId)) {
                 taskToRemoveIndex = user.getTasks().indexOf(task);
                 break;
             }
@@ -75,7 +95,7 @@ public class TaskManager {
         Task taskToShow = (Task) requestObject.getContent();
         Long userId = userManager.getUserIdOfToken(requestObject.getToken());
         checkTokenAccessToUser(userId, requestObject.getToken());
-        taskToShow = taskRepository.findById(taskToShow.getTaskId()).get();
+        taskToShow = taskRepository.findById(taskToShow.getId()).get();
         if (taskToShow == null) {
             throw new HTTPException(400);
         }

@@ -56,9 +56,9 @@ public class UserControllerTest {
                             if (
                                     u.getHashedPassword().length() == 128
                             )
-                                return "11";
+                                return true;
                             else
-                                return "-1";
+                                return false;
                         }
 
             });

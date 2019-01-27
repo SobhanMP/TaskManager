@@ -3,6 +3,7 @@ package sharif.Taskmanager.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import sharif.Taskmanager.entity.LoginResponse;
 import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.User;
 import sharif.Taskmanager.manager.UserManager;
@@ -31,7 +32,7 @@ public class UserController {
 
 
     @RequestMapping(value = "/signin", method = RequestMethod.POST)
-    public String login(@RequestBody User user) throws Exception {
+    public LoginResponse login(@RequestBody User user) throws Exception {
         RequestObject requestObject = new RequestObject();
         requestObject.setContent(user);
         return userManager.login(requestObject);
@@ -46,7 +47,6 @@ public class UserController {
 
     @GetMapping(value = "/{id}")
     public User getUserProfile(@PathVariable String id, @RequestHeader(value = "token") String token) throws Exception {
-
         RequestObject requestObject = new RequestObject();
         requestObject.setRequesterId(id);
         User user = new User();
@@ -56,4 +56,7 @@ public class UserController {
         return userManager.getUser(requestObject);
 
     }
+
+
+
 }
