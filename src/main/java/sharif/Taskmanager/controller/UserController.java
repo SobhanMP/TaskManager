@@ -54,9 +54,7 @@ public class UserController {
         requestObject.setContent(user);
         requestObject.setToken(token);
         return userManager.getUser(requestObject);
-
     }
-
 
 
 }

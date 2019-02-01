@@ -39,6 +39,7 @@ public class TaskManager {
         }
         taskToAdd = taskRepository.save(taskToAdd);
         taskOwner.getTasks().add(taskToAdd);
+        taskOwner.setTaskPoint(taskOwner.getTaskPoint() + 1);
         userManager.updateUserTasks(taskOwner);
         return taskToAdd;
     }
@@ -55,8 +56,8 @@ public class TaskManager {
         task = taskRepository.save(task);
         int index = 0;
         for (Task task1 : taskOwner.getTasks()) {
-            if (task1.getId() == task.getId()){
-                index= taskOwner.getTasks().indexOf(task1);
+            if (task1.getId() == task.getId()) {
+                index = taskOwner.getTasks().indexOf(task1);
             }
         }
         taskOwner.getTasks().remove(index);

@@ -19,6 +19,7 @@ public class User extends BaseEntity {
     private  String name;
     @OneToMany
     private List<Task> tasks;
+    int TaskPoint;
 
 
     public String getUserName() {
@@ -50,5 +51,11 @@ public class User extends BaseEntity {
     }
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+    }
+    public int getTaskPoint() {
+        return TaskPoint;
+    }
+    public void setTaskPoint(int taskPoint) {
+        this.TaskPoint = taskPoint;
     }
 }

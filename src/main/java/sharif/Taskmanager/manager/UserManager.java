@@ -1,5 +1,6 @@
 package sharif.Taskmanager.manager;
 
+import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sharif.Taskmanager.data.UserRepository;
@@ -9,6 +10,7 @@ import sharif.Taskmanager.entity.User;
 
 import javax.xml.ws.http.HTTPException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -19,6 +21,7 @@ public class UserManager {
     @Autowired
     private UserRepository userRepository;
     private HashMap<String, Long> tokens = new HashMap<>();  //<token, userId>
+    private final Long adminUID = 1000L;
 
     public UserManager(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -30,6 +33,7 @@ public class UserManager {
         if (!validateUser(userToAdd)) {
             throw new HTTPException(400);
         }
+        userToAdd.setTaskPoint(0);
         return userRepository.save(userToAdd).getID().toString();
     }
 
@@ -38,7 +42,6 @@ public class UserManager {
         User dupUser = userRepository.findByUserName(user.getUserName());
         if (dupUser != null)
             return false;
-
         return true;
     }
 
@@ -60,10 +63,18 @@ public class UserManager {
 
 
     public boolean checkTokenAccessToUser(Long id, String token) {
-        Long userIdOfToken = tokens.get(token);
-        if (userIdOfToken == id /* or userIdOfToken == admin */) {
-            return true;
-        } else throw new HTTPException(401);
+        try {
+            Long userIdOfToken = tokens.get(token);
+            if (userIdOfToken == id || userIdOfToken == adminUID) {
+                return true;
+            }
+            if (userIdOfToken.equals(adminUID) && id == -1L) {
+                return true;
+            }
+        } catch (Exception e) {
+            throw new HTTPException(401);
+        }
+        throw new HTTPException(401);
     }
 
     public Long getUserIdOfToken(String token) {
@@ -79,9 +90,9 @@ public class UserManager {
         Long id = ((User) (requestObject.getContent())).getID();
         if (!checkTokenAccessToUser(id, requestObject.getToken())) {
             throw new HTTPException(401);
-        } else {
-            return getUser(id);
         }
+        return getUser(id);
+
     }
 
     public User getUser(Long userId) {
@@ -97,5 +108,22 @@ public class UserManager {
             tokens.remove(token);
             return true;
         } else throw new HTTPException(401);
+    }
+
+    public User removeUser(RequestObject requestObject) {
+        Long userToRemoveId = ((User) (requestObject.getContent())).getID();
+        if (!checkTokenAccessToUser(userToRemoveId, requestObject.getToken())) {
+            throw new HTTPException(401);
+        }
+        User user = userRepository.findById(userToRemoveId).get();
+        userRepository.deleteById(userToRemoveId);
+        return user;
+    }
+
+    public List<User> getAllUsers(RequestObject requestObject) {
+        if (!checkTokenAccessToUser(-1L, requestObject.getToken())) {
+            throw new HTTPException(401);
+        }
+        return Lists.newArrayList(userRepository.findAll());
     }
 }
