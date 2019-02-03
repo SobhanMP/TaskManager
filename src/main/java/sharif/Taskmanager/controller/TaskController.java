@@ -48,7 +48,7 @@ public class TaskController {
     }
 
     @GetMapping(value = "/remove/{taskId}")
-    public void removeTask (@PathVariable String taskId, @RequestHeader(value = "token") String token, @RequestHeader(value = "userId") String userId){
+    public void removeTask (@PathVariable String taskId, @RequestHeader(value = "token") String token, @RequestHeader(value = "userId") String userId, @RequestHeader(value = "withChilds") boolean withChilds){
         RequestObject requestObject = new RequestObject();
         requestObject.setToken(token);
         Task task = new Task();

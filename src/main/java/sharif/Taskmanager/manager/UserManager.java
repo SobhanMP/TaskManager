@@ -3,8 +3,10 @@ package sharif.Taskmanager.manager;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sharif.Taskmanager.data.MembershipRequestRepository;
 import sharif.Taskmanager.data.UserRepository;
 import sharif.Taskmanager.entity.LoginResponse;
+import sharif.Taskmanager.entity.MembershipRequest;
 import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.User;
 
@@ -21,11 +23,14 @@ import java.util.UUID;
 public class UserManager {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MembershipRequestRepository membershipRequestRepository;
     private HashMap<String, Long> tokens = new HashMap<>();  //<token, userId>
     private final Long adminUID = 1000L;
 
-    public UserManager(UserRepository userRepository) {
+    public UserManager(UserRepository userRepository,MembershipRequestRepository membershipRequestRepository) {
         this.userRepository = userRepository;
+        this.membershipRequestRepository = membershipRequestRepository;
     }
 
 
@@ -132,7 +137,10 @@ public class UserManager {
     }
 
     public void addMember(RequestObject requestObject) {
-
+        MembershipRequest request = (MembershipRequest) requestObject.getContent();
+        User assignee = userRepository.findById(request.getUserId()).get();
+        assignee.getMembershipRequests().add(request);
+        userRepository.save(assignee);
     }
 
     public List<String> getUsernames(List<Long> userIds, String token) {
@@ -142,7 +150,7 @@ public class UserManager {
         User tempUser;
         for (Long aLong : user.getMembersUid()) {
             tempUser = userRepository.findById(aLong).get();
-            if (tempUser!=null){
+            if (tempUser != null) {
                 usernames.add(tempUser.getUserName());
             }
         }
@@ -150,5 +158,18 @@ public class UserManager {
     }
 
     public void answerMembership(RequestObject requestObject, boolean accept) {
+        MembershipRequest membershipRequest = (MembershipRequest) requestObject.getContent();
+        User assignee = userRepository.findById(membershipRequest.getUserId()).get();
+        if (accept){
+            User requester = userRepository.findById(membershipRequest.getRequesterUserId()).get();
+            requester.getMembersUid().add(assignee.getID());
+            userRepository.save(requester);
+        }
+        for (MembershipRequest request : assignee.getMembershipRequests()) {
+            if (request.getId() == membershipRequest.getId()){
+                assignee.getMembershipRequests().remove(request);
+            }
+        }
     }
+
 }
