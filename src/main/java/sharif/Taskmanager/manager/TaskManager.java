@@ -125,4 +125,10 @@ public class TaskManager {
         return userManager.checkTokenAccessToUser(id, token);
     }
 
+    public Task assignTasks(RequestObject requestObject) {
+        //check access between token and requester
+        //check existence of assignee in assigner's slaves
+        //get tasks, create new
+        return null;
+    }
 }

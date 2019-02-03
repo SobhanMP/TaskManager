@@ -9,6 +9,7 @@ import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.User;
 
 import javax.xml.ws.http.HTTPException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -64,6 +65,9 @@ public class UserManager {
 
     public boolean checkTokenAccessToUser(Long id, String token) {
         try {
+            if (!tokens.containsKey(token)) {
+                throw new HTTPException(401);
+            }
             Long userIdOfToken = tokens.get(token);
             if (userIdOfToken == id || userIdOfToken == adminUID) {
                 return true;
@@ -78,10 +82,10 @@ public class UserManager {
     }
 
     public Long getUserIdOfToken(String token) {
-        Long userId = tokens.get(token);
-        if (userId == null) {
+        if (!tokens.containsKey(token)) {
             throw new HTTPException(401);
         }
+        Long userId = tokens.get(token);
         return userId;
     }
 
@@ -125,5 +129,26 @@ public class UserManager {
             throw new HTTPException(401);
         }
         return Lists.newArrayList(userRepository.findAll());
+    }
+
+    public void addMember(RequestObject requestObject) {
+
+    }
+
+    public List<String> getUsernames(List<Long> userIds, String token) {
+        ArrayList<String> usernames = new ArrayList<>();
+        Long userId = getUserIdOfToken(token);
+        User user = userRepository.findById(userId).get();
+        User tempUser;
+        for (Long aLong : user.getMembersUid()) {
+            tempUser = userRepository.findById(aLong).get();
+            if (tempUser!=null){
+                usernames.add(tempUser.getUserName());
+            }
+        }
+        return usernames;
+    }
+
+    public void answerMembership(RequestObject requestObject, boolean accept) {
     }
 }

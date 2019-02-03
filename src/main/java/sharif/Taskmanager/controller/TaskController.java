@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.Task;
+import sharif.Taskmanager.entity.TaskAssignDto;
 import sharif.Taskmanager.manager.TaskManager;
 
 /**
@@ -38,6 +39,14 @@ public class TaskController {
         return taskManager.editTask(requestObject);
     }
 
+    @RequestMapping(value = "/assign", method = RequestMethod.POST)
+    public void assignTasks(@RequestBody TaskAssignDto taskAssignDto, @RequestHeader(value = "token") String token) {
+        RequestObject requestObject = new RequestObject();
+        requestObject.setContent(taskAssignDto);
+        requestObject.setToken(token);
+        taskManager.assignTasks(requestObject);
+    }
+
     @GetMapping(value = "/remove/{taskId}")
     public void removeTask (@PathVariable String taskId, @RequestHeader(value = "token") String token, @RequestHeader(value = "userId") String userId){
         RequestObject requestObject = new RequestObject();
@@ -59,4 +68,6 @@ public class TaskController {
         requestObject.setContent(task);
         return taskManager.getTask(requestObject);
     }
+
+
 }

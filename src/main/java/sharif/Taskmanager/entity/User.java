@@ -18,10 +18,25 @@ public class User extends BaseEntity {
     private String hashedPassword;
     private  String name;
     @OneToMany
+    private List<MembershipRequest> membershipRequests;
+    @OneToMany
     private List<Task> tasks;
-    int TaskPoint;
+    private int TaskPoint;
+    private List<Long> membersUid;
 
 
+    public List<MembershipRequest> getMembershipRequests() {
+        return membershipRequests;
+    }
+    public void setMembershipRequests(List<MembershipRequest> membershipRequests) {
+        this.membershipRequests = membershipRequests;
+    }
+    public List<Long> getMembersUid() {
+        return membersUid;
+    }
+    public void setMembersUid(List<Long> membersUid) {
+        this.membersUid = membersUid;
+    }
     public String getUserName() {
         return userName;
     }
