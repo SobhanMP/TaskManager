@@ -30,7 +30,7 @@ public class AdminController {
     }
 
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/deleteuser/{id}")
     public User deleteUser(@PathVariable String id, @RequestHeader(value = "token") String token) throws Exception {
         RequestObject requestObject = new RequestObject();
         User user = new User();

@@ -9,8 +9,6 @@ import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.User;
 import sharif.Taskmanager.manager.UserManager;
 
-import java.util.List;
-
 /**
  * Created by amirmhp on 12/15/2018.
  */
@@ -60,15 +58,16 @@ public class UserController {
     }
 
     @GetMapping(value = "/answermembership/{id}")
-    public void answerMembership(@PathVariable String id, @RequestHeader(value = "token") String token,@RequestHeader(value = "accept") boolean accept) {
+    public void answerMembership(@PathVariable String id, @RequestHeader(value = "token") String token,@RequestHeader(value = "acpt") int accept) {
+        boolean acceptBool = accept==1;
         RequestObject requestObject = new RequestObject();
         MembershipRequest membershipRequest = new MembershipRequest();
         membershipRequest.setId(Long.parseLong(id));
         requestObject.setContent(membershipRequest);
         requestObject.setToken(token);
-        userManager.answerMembership(requestObject, accept);
+        userManager.answerMembership(requestObject, acceptBool);
     }
-
+    @CrossOrigin
     @RequestMapping(value = "/addmember", method = RequestMethod.POST)
     public void addMember(@RequestBody MembershipRequest membershipRequest, @RequestHeader(value = "token") String token) {
         RequestObject requestObject = new RequestObject();
@@ -77,10 +76,10 @@ public class UserController {
         userManager.addMember(requestObject);
     }
 
-    @RequestMapping(value = "/getusernames", method = RequestMethod.POST)
-    public List<String> getUsernamesByUid(@RequestBody List<Long> userIds, @RequestHeader(value = "token") String token) {
-        return userManager.getUsernames(userIds, token);
-    }
+//    @RequestMapping(value = "/getusernames", method = RequestMethod.POST)
+//    public List<String> getUsernamesByUid(@RequestBody List<Long> userIds, @RequestHeader(value = "token") String token) {
+//        return userManager.getUsernames(userIds, token);
+//    }
 
 
 

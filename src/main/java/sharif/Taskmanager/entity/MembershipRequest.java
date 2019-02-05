@@ -13,8 +13,8 @@ public class MembershipRequest extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    Long requesterUserId;
-    Long userId;
+    String requesterUsername;
+    String username;
 
 
     public Long getId() {
@@ -23,16 +23,18 @@ public class MembershipRequest extends BaseEntity {
     public void setId(Long id) {
         this.id = id;
     }
-    public Long getRequesterUserId() {
-        return requesterUserId;
+    public String getRequesterUsername() {
+        return requesterUsername;
     }
-    public void setRequesterUserId(Long requesterUserId) {
-        this.requesterUserId = requesterUserId;
+    public void setRequesterUsername(String requesterUsername) {
+        this.requesterUsername = requesterUsername;
     }
-    public Long getUserId() {
-        return userId;
+
+    public String getUsername() {
+        return username;
     }
-    public void setUserId(Long userId) {
-        this.userId = userId;
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

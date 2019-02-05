@@ -11,7 +11,6 @@ import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.User;
 
 import javax.xml.ws.http.HTTPException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +27,7 @@ public class UserManager {
     private HashMap<String, Long> tokens = new HashMap<>();  //<token, userId>
     private final Long adminUID = 1000L;
 
-    public UserManager(UserRepository userRepository,MembershipRequestRepository membershipRequestRepository) {
+    public UserManager(UserRepository userRepository, MembershipRequestRepository membershipRequestRepository) {
         this.userRepository = userRepository;
         this.membershipRequestRepository = membershipRequestRepository;
     }
@@ -51,8 +50,8 @@ public class UserManager {
         return true;
     }
 
-    public void updateUserTasks(User user) {
-        userRepository.save(user);
+    public User updateUserTasks(User user) {
+        return userRepository.save(user);
     }
 
     //ret value = token
@@ -138,38 +137,58 @@ public class UserManager {
 
     public void addMember(RequestObject requestObject) {
         MembershipRequest request = (MembershipRequest) requestObject.getContent();
-        User assignee = userRepository.findById(request.getUserId()).get();
+        User assignee = userRepository.findByUserName(request.getUsername());
+        request = membershipRequestRepository.save(request);
         assignee.getMembershipRequests().add(request);
         userRepository.save(assignee);
     }
 
-    public List<String> getUsernames(List<Long> userIds, String token) {
-        ArrayList<String> usernames = new ArrayList<>();
-        Long userId = getUserIdOfToken(token);
-        User user = userRepository.findById(userId).get();
-        User tempUser;
-        for (Long aLong : user.getMembersUid()) {
-            tempUser = userRepository.findById(aLong).get();
-            if (tempUser != null) {
-                usernames.add(tempUser.getUserName());
-            }
-        }
-        return usernames;
-    }
+//    public List<String> getUsernames(List<Long> userIds, String token) {
+//        ArrayList<String> usernames = new ArrayList<>();
+//        Long userId = getUserIdOfToken(token);
+//        User user = userRepository.findById(userId).get();
+//        User tempUser;
+//        for (Long aLong : user.getMembersUid()) {
+//            tempUser = userRepository.findById(aLong).get();
+//            if (tempUser != null) {
+//                usernames.add(tempUser.getUserName());
+//            }
+//        }
+//        return usernames;
+//    }
 
     public void answerMembership(RequestObject requestObject, boolean accept) {
         MembershipRequest membershipRequest = (MembershipRequest) requestObject.getContent();
-        User assignee = userRepository.findById(membershipRequest.getUserId()).get();
-        if (accept){
-            User requester = userRepository.findById(membershipRequest.getRequesterUserId()).get();
-            requester.getMembersUid().add(assignee.getID());
-            userRepository.save(requester);
-        }
-        for (MembershipRequest request : assignee.getMembershipRequests()) {
-            if (request.getId() == membershipRequest.getId()){
-                assignee.getMembershipRequests().remove(request);
+        membershipRequest = membershipRequestRepository.findById(membershipRequest.getId()).get();
+        User assignee = userRepository.findByUserName(membershipRequest.getUsername());
+        if (accept) {
+            User requester = userRepository.findByUserName(membershipRequest.getRequesterUsername());
+            boolean hasThatMember = false;
+            for (User user : requester.getMembers()) {
+                if (user.getID() == assignee.getID()) {
+                    hasThatMember = true;
+                    break;
+                }
             }
+            if (!hasThatMember) {
+                requester.getMembers().add(assignee);
+                userRepository.save(requester);
+            }
+        }
+        MembershipRequest membershipRequestToDelete = null;
+        boolean found = false;
+        for (MembershipRequest request : assignee.getMembershipRequests()) {
+            if (request.getId() == membershipRequest.getId()) {
+                membershipRequestToDelete = request;
+                found = true;
+            }
+        }
+        if (found){
+            assignee.getMembershipRequests().remove(membershipRequestToDelete);
+            userRepository.save(assignee);
         }
     }
 
+    public User importUser(RequestObject requestObject) {
+    }
 }

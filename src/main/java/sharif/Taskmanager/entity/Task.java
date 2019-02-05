@@ -18,18 +18,18 @@ public class Task extends BaseEntity {
     private Long id;
     private Long parentTaskId;
     private Long userId;
-    private String AssignerUserId;
+    private int showBit;
+    private String assignerUsername;
     private String deadline;
     private String description;
+
 
     public String getDescription() {
         return description;
     }
-
     public void setDescription(String description) {
         this.description = description;
     }
-
     public String getDeadline() {
         return deadline;
     }
@@ -66,10 +66,10 @@ public class Task extends BaseEntity {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    public String getAssignerUserId() {
-        return AssignerUserId;
+    public String getAssignerUsername() {
+        return assignerUsername;
     }
-    public void setAssignerUserId(String assignerUserId) {
-        AssignerUserId = assignerUserId;
+    public void setAssignerUsername(String assignerUserId) {
+        assignerUsername = assignerUserId;
     }
 }

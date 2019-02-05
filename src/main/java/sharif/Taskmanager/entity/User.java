@@ -16,26 +16,34 @@ public class User extends BaseEntity {
     private Long ID;
     @NotNull
     private String hashedPassword;
+    private Long prevBackupId;
     private  String name;
     @OneToMany
     private List<MembershipRequest> membershipRequests;
     @OneToMany
     private List<Task> tasks;
     private int TaskPoint;
-    private List<Long> membersUid;
+    @OneToMany
+    private List<User> members;
 
 
+    public Long getPrevBackupId() {
+        return prevBackupId;
+    }
+    public void setPrevBackupId(Long prevBackupId) {
+        this.prevBackupId = prevBackupId;
+    }
+    public List<User> getMembers() {
+        return members;
+    }
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }
     public List<MembershipRequest> getMembershipRequests() {
         return membershipRequests;
     }
     public void setMembershipRequests(List<MembershipRequest> membershipRequests) {
         this.membershipRequests = membershipRequests;
-    }
-    public List<Long> getMembersUid() {
-        return membersUid;
-    }
-    public void setMembersUid(List<Long> membersUid) {
-        this.membersUid = membersUid;
     }
     public String getUserName() {
         return userName;
