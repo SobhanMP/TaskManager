@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import sharif.Taskmanager.entity.RequestObject;
 import sharif.Taskmanager.entity.Task;
 import sharif.Taskmanager.entity.TaskAssignDto;
-import sharif.Taskmanager.entity.User;
 import sharif.Taskmanager.manager.TaskManager;
 
 /**
@@ -68,11 +67,6 @@ public class TaskController {
         task.setUserId(Long.parseLong(userId));
         requestObject.setContent(task);
         return taskManager.getTask(requestObject);
-    }
-
-    @GetMapping(value = "/undo/{userId}")
-    public User getTask(@PathVariable String userId, @RequestHeader(value = "token") String token) {
-        return taskManager.undo(Long.parseLong(userId), token);
     }
 
 }

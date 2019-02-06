@@ -1,11 +1,12 @@
 package sharif.Taskmanager.manager;
 
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sharif.Taskmanager.data.BackupRepository;
 import sharif.Taskmanager.data.TaskRepository;
-import sharif.Taskmanager.entity.*;
+import sharif.Taskmanager.entity.RequestObject;
+import sharif.Taskmanager.entity.Task;
+import sharif.Taskmanager.entity.TaskAssignDto;
+import sharif.Taskmanager.entity.User;
 
 import javax.xml.ws.http.HTTPException;
 import java.util.ArrayList;
@@ -20,23 +21,15 @@ public class TaskManager {
     @Autowired
     TaskRepository taskRepository;
     @Autowired
-    BackupRepository backupRepository;
-    @Autowired
     UserManager userManager;
-    Gson gson = new Gson();
 
-    public TaskManager(TaskRepository taskRepository, BackupRepository backupRepository, UserManager userManager) {
+    public TaskManager(TaskRepository taskRepository, UserManager userManager) {
         this.taskRepository = taskRepository;
-        this.backupRepository = backupRepository;
         this.userManager = userManager;
     }
 
     public Task addTask(RequestObject requestObject) {
         Long userId = userManager.getUserIdOfToken(requestObject.getToken());
-        User backupUser = userManager.getUser(userId);
-        BackupLog backupLog = new BackupLog();
-        backupLog.setBackupJson(gson.toJson(backupUser));
-        backupLog = backupRepository.save(backupLog);
         Task taskToAdd = (Task) requestObject.getContent();
         checkTokenAccessToUser(userId, requestObject.getToken());
         if (!validateTask(taskToAdd)) {
@@ -50,7 +43,6 @@ public class TaskManager {
         taskToAdd = taskRepository.save(taskToAdd);
         taskOwner.getTasks().add(taskToAdd);
         taskOwner.setTaskPoint(taskOwner.getTaskPoint() + 1);
-        taskOwner.setPrevBackupId(backupLog.getId());
         userManager.updateUserTasks(taskOwner);
         return taskToAdd;
     }
@@ -59,18 +51,8 @@ public class TaskManager {
         Task task = (Task) requestObject.getContent();
         String token = requestObject.getToken();
         Long userId = userManager.getUserIdOfToken(token);
-
-        User backupUser = userManager.getUser(userId);
-        BackupLog backupLog = new BackupLog();
-        backupLog.setBackupJson(gson.toJson(backupUser));
-        backupLog = backupRepository.save(backupLog);
-
         checkTokenAccessToUser(userId, token);
-        Task editedTask = editTask(task, userId);
-        User taskOwner = userManager.getUser(userId);
-        taskOwner.setPrevBackupId(backupLog.getId());
-        userManager.updateUserTasks(taskOwner);
-        return editedTask;
+        return editTask(task, userId);
     }
 
     public Task editTask(Task task, Long userId) {
@@ -103,10 +85,10 @@ public class TaskManager {
         Task taskToRemove = (Task) requestObject.getContent();
         Long userId = taskToRemove.getUserId();
 
-        User backupUser = userManager.getUser(userId);
-        BackupLog backupLog = new BackupLog();
-        backupLog.setBackupJson(gson.toJson(backupUser));
-        backupLog = backupRepository.save(backupLog);
+//        User backupUser = userManager.getUser(userId);
+//        BackupLog backupLog = new BackupLog();
+//        backupLog.setBackupJson(gson.toJson(backupUser));
+//        backupLog = backupRepository.save(backupLog);
 
         checkTokenAccessToUser(userId, requestObject.getToken());
         User taskOwner = userManager.getUser(userId);
@@ -115,9 +97,9 @@ public class TaskManager {
         } else {
             removeTaskOnly(taskToRemove.getId(), taskOwner);
         }
-        taskOwner = userManager.getUser(userId);
-        taskOwner.setPrevBackupId(backupLog.getId());
-        userManager.updateUserTasks(taskOwner);
+//        taskOwner = userManager.getUser(userId);
+//        taskOwner.setPrevBackupId(backupLog.getId());
+//        userManager.updateUserTasks(taskOwner);
     }
 
     private void removeTaskOnly(Long taskId, User user) {
@@ -213,16 +195,16 @@ public class TaskManager {
         return assignee;
     }
 
-    public User undo(Long userId, String token) {
-        if (!checkTokenAccessToUser(userId, token)){
-            throw new HTTPException(401);
-        }
-        User oldUser = userManager.getUser(userId);
-        removeTaskWithChilds(taskRepository.findByUserIdAndParentTaskId(userId, null).getId(), oldUser);
-        RequestObject requestObject = new RequestObject();
-        requestObject.setToken(token);
-        requestObject.setContent(oldUser);
-        userManager.removeUser(requestObject);
-        return userManager.importUser(requestObject);
-    }
+//    public User undo(Long userId, String token) {
+//        if (!checkTokenAccessToUser(userId, token)){
+//            throw new HTTPException(401);
+//        }
+//        User oldUser = userManager.getUser(userId);
+//        removeTaskWithChilds(taskRepository.findByUserIdAndParentTaskId(userId, null).getId(), oldUser);
+//        RequestObject requestObject = new RequestObject();
+//        requestObject.setToken(token);
+//        requestObject.setContent(oldUser);
+//        userManager.removeUser(requestObject);
+//        return userManager.importUser(requestObject);
+//    }
 }
