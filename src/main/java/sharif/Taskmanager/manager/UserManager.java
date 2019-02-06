@@ -190,5 +190,6 @@ public class UserManager {
     }
 
     public User importUser(RequestObject requestObject) {
+        return null;
     }
 }
